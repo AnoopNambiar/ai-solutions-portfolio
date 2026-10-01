@@ -75,10 +75,6 @@
 
     <div class="card">
 
-         <h2 class="title">
-            {{ apod }}
-        </h2>
-
         <h2 class="title">
             {{ apod.title }}
         </h2>
@@ -89,8 +85,7 @@
 
         {% if apod.media_type == "image" %}
 
-            <img src="{{ apod.hdurl or apod.url }}"
-                 alt="{{ apod.alt }}">
+            <img src="{{ apod.hdurl }}" alt="{{ apod.alt }}" width="800">
 
         {% else %}
 
@@ -104,9 +99,7 @@
 
         {% endif %}
 
-        <p class="explanation">
-            {{ apod.explanation }}
-        </p>
+    
 
         {% if apod.credit %}
             <p class="credit">

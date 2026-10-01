@@ -28,10 +28,8 @@ def home():
 
     apod = response.json()
 
-    print("NASA RESPONSE:")
-    print(apod)
 
-    return render_template("index.html", apod=apod)
+    return render_template("index.html", apod=apod[0])
 
 
 if __name__ == "__main__":
