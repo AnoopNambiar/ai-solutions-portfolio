@@ -6,142 +6,132 @@ pipeline {
         APP_NAME   = "nasa-app"
         REGISTRY   = "localhost:5000"
         IMAGE      = "nasa-app:1.0"
-        PYTHON     = ".venv/Scripts/python.exe"
     }
 
     stages {
 
-        /*
-         * ==========================================================
-         * ENVIRONMENT CHECK
-         * ==========================================================
-         */
+        // =========================================================
+        // ENVIRONMENT CHECK
+        // =========================================================
+
         stage('Environment Check') {
             steps {
-                sh '''
-                    echo "=========================================="
-                    echo "Environment Check"
-                    echo "=========================================="
 
+                echo '=========================================='
+                echo 'Environment Check'
+                echo '=========================================='
+
+                sh '''
+                    echo "Python:"
                     python --version
                     where python
 
+                    echo ""
+                    echo "Docker:"
                     docker --version
+
+                    echo ""
+                    echo "Trivy:"
                     trivy --version
                 '''
             }
         }
 
 
-        /*
-         * ==========================================================
-         * SETUP PYTHON ENVIRONMENT
-         * ==========================================================
-         */
-        stage('Setup Python Environment') {
-            steps {
-                sh '''
-                    echo "Creating Python virtual environment..."
+        // =========================================================
+        // STAGE A - CODE LINTING
+        // =========================================================
 
-                    python -m venv .venv
-
-                    echo "Upgrading pip..."
-
-                    .venv/Scripts/python.exe -m pip install --upgrade pip
-
-                    echo "Installing application dependencies..."
-
-                    .venv/Scripts/python.exe -m pip install -r requirements.txt
-
-                    echo "Installing development dependencies..."
-
-                    .venv/Scripts/python.exe -m pip install -r requirements-dev.txt
-                '''
-            }
-        }
-
-
-        /*
-         * ==========================================================
-         * STAGE A - CODE LINTING
-         * ==========================================================
-         */
         stage('A - Code Linting') {
             steps {
+
+                echo '=========================================='
+                echo 'Stage A - Code Linting'
+                echo '=========================================='
 
                 echo 'Running Flake8...'
 
                 sh '''
-                    .venv/Scripts/python.exe -m flake8 .
+                    python -m flake8 *.py tests
                 '''
 
                 echo 'Checking Black formatting...'
 
                 sh '''
-                    .venv/Scripts/python.exe -m black --check .
+                    python -m black --check *.py tests
                 '''
             }
         }
 
 
-        /*
-         * ==========================================================
-         * STAGE B - UNIT TESTING
-         * ==========================================================
-         */
+        // =========================================================
+        // STAGE B - UNIT TESTING
+        // =========================================================
+
         stage('B - Unit Testing') {
             steps {
 
-                echo 'Running pytest...'
+                echo '=========================================='
+                echo 'Stage B - Unit Testing'
+                echo '=========================================='
 
                 sh '''
-                    .venv/Scripts/python.exe -m pytest -v
+                    python -m pytest -v
                 '''
             }
         }
 
 
-        /*
-         * ==========================================================
-         * STAGE C - VULNERABILITY SCANNING
-         *
-         * 1. Scan source/dependencies
-         * 2. Build Docker image
-         * 3. Scan Docker image layers
-         *
-         * Pipeline stops if vulnerabilities are found.
-         * ==========================================================
-         */
+        // =========================================================
+        // STAGE C - VULNERABILITY SCAN
+        // =========================================================
+
         stage('C - Vulnerability Scan') {
             steps {
+
+                echo '=========================================='
+                echo 'Stage C - Vulnerability Scan'
+                echo '=========================================='
+
+                // ---------------------------------------------
+                // Scan application dependencies / filesystem
+                // ---------------------------------------------
 
                 echo 'Scanning project dependencies with Trivy...'
 
                 sh '''
                     trivy fs \
-                      --scanners vuln \
-                      --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-                      --exit-code 1 \
-                      .
+                        --scanners vuln \
+                        --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+                        --exit-code 1 \
+                        .
                 '''
 
+
+                // ---------------------------------------------
+                // Build Docker image
+                // ---------------------------------------------
 
                 echo 'Building Docker image...'
 
                 sh '''
                     docker build \
-                      -t "$IMAGE" \
-                      .
+                        -t "$IMAGE" \
+                        .
                 '''
 
+
+                // ---------------------------------------------
+                // Scan Docker image
+                // ---------------------------------------------
 
                 echo 'Scanning Docker image with Trivy...'
 
                 sh '''
                     trivy image \
-                      --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
-                      --exit-code 1 \
-                      "$IMAGE"
+                        --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+                        --exit-code 1 \
+                        "$IMAGE"
                 '''
 
                 echo '=========================================='
@@ -151,17 +141,18 @@ pipeline {
         }
 
 
-        /*
-         * ==========================================================
-         * STAGE D - PUSH TO LOCAL REGISTRY
-         *
-         * This stage executes ONLY if Stage C passes.
-         * ==========================================================
-         */
+        // =========================================================
+        // STAGE D - PUSH TO LOCAL REGISTRY
+        // =========================================================
+
         stage('D - Push to Local Registry') {
             steps {
 
-                echo 'Pushing security-approved Docker image...'
+                echo '=========================================='
+                echo 'Stage D - Push Docker Image'
+                echo '=========================================='
+
+                echo "Pushing image: ${IMAGE}"
 
                 sh '''
                     docker push "$IMAGE"
@@ -170,43 +161,45 @@ pipeline {
                 echo '=========================================='
                 echo 'Docker image pushed successfully'
                 echo '=========================================='
-
-                echo "Image: ${IMAGE}"
             }
         }
     }
 
 
-    /*
-     * ==========================================================
-     * POST ACTIONS
-     * ==========================================================
-     */
+    // =============================================================
+    // POST BUILD
+    // =============================================================
+
     post {
 
         success {
+
             echo '=========================================='
             echo 'PIPELINE SUCCESSFUL'
             echo '=========================================='
-            echo "Image: ${IMAGE}"
+
+            echo "Docker Image: ${IMAGE}"
+
+            echo 'All stages completed successfully.'
         }
 
         failure {
+
             echo '=========================================='
             echo 'PIPELINE FAILED'
             echo '=========================================='
-            echo 'Security gate or another stage failed.'
-            echo 'Docker image was NOT pushed.'
+
+            echo 'One or more stages failed.'
+
+            echo 'If the vulnerability scan failed,'
+            echo 'the Docker image was NOT pushed to the registry.'
         }
 
         always {
-            echo 'Cleaning temporary Python environment...'
 
-            sh '''
-                if [ -d ".venv" ]; then
-                    rm -rf .venv
-                fi
-            '''
+            echo '=========================================='
+            echo 'Pipeline completed'
+            echo '=========================================='
         }
     }
 }
