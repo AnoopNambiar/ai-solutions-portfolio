@@ -6,6 +6,8 @@ pipeline {
         APP_NAME   = "nasa-app"
         REGISTRY   = "localhost:5000"
         IMAGE      = "nasa-app:1.0"
+
+        PYTHON     = ".venv/Scripts/python.exe"
     }
 
     stages {
@@ -16,6 +18,7 @@ pipeline {
 
         stage('Environment Check') {
             steps {
+
                 echo '=========================================='
                 echo 'Environment Check'
                 echo '=========================================='
@@ -24,18 +27,6 @@ pipeline {
                     echo "Python:"
                     python --version
                     where python
-
-                    echo ""
-                    echo "Flake8:"
-                    python -m flake8 --version
-
-                    echo ""
-                    echo "Pytest:"
-                    python -m pytest --version
-
-                    echo ""
-                    echo "Black:"
-                    python -m black --version
 
                     echo ""
                     echo "Docker:"
@@ -50,25 +41,74 @@ pipeline {
 
 
         // =====================================================
+        // SETUP PYTHON VIRTUAL ENVIRONMENT
+        // =====================================================
+
+        stage('Setup Python Environment') {
+            steps {
+
+                echo '=========================================='
+                echo 'Setup Python Environment'
+                echo '=========================================='
+
+                sh '''
+                    echo "Creating Python virtual environment..."
+
+                    python -m venv .venv
+
+                    echo "Upgrading pip..."
+
+                    .venv/Scripts/python.exe -m pip install --upgrade pip
+
+                    echo "Installing application dependencies..."
+
+                    .venv/Scripts/python.exe -m pip install -r requirements.txt
+
+                    echo "Installing development dependencies..."
+
+                    .venv/Scripts/python.exe -m pip install -r requirements-dev.txt
+
+                    echo "Installed packages:"
+
+                    .venv/Scripts/python.exe -m pip list
+                '''
+            }
+        }
+
+
+        // =====================================================
         // STAGE A - CODE LINTING
         // =====================================================
 
         stage('A - Code Linting') {
             steps {
+
                 echo '=========================================='
                 echo 'Stage A - Code Linting'
                 echo '=========================================='
 
+                echo 'Checking Flake8 installation...'
+
+                sh '''
+                    .venv/Scripts/python.exe -m flake8 --version
+                '''
+
                 echo 'Running Flake8...'
 
                 sh '''
-                    python -m flake8 *.py tests
+                    .venv/Scripts/python.exe -m flake8 *.py tests
+                '''
+
+                echo 'Checking Black installation...'
+
+                sh '''
+                    .venv/Scripts/python.exe -m black --version
                 '''
 
                 echo 'Running Black format check...'
 
                 sh '''
-                    python -m black --check *.py tests
+                    .venv/Scripts/python.exe -m black --check *.py tests
                 '''
 
                 echo 'Code linting completed successfully.'
@@ -82,15 +122,24 @@ pipeline {
 
         stage('B - Unit Testing') {
             steps {
+
                 echo '=========================================='
                 echo 'Stage B - Unit Testing'
                 echo '=========================================='
 
+                echo 'Checking pytest installation...'
+
                 sh '''
-                    python -m pytest -v
+                    .venv/Scripts/python.exe -m pytest --version
                 '''
 
-                echo 'Unit tests completed successfully.'
+                echo 'Running unit tests...'
+
+                sh '''
+                    .venv/Scripts/python.exe -m pytest -v
+                '''
+
+                echo 'Unit testing completed successfully.'
             }
         }
 
@@ -101,12 +150,13 @@ pipeline {
 
         stage('C - Vulnerability Scan') {
             steps {
+
                 echo '=========================================='
                 echo 'Stage C - Vulnerability Scan'
                 echo '=========================================='
 
                 // -------------------------------------------------
-                // Scan source files and dependencies
+                // FILESYSTEM / DEPENDENCY SCAN
                 // -------------------------------------------------
 
                 echo 'Scanning project dependencies with Trivy...'
@@ -121,7 +171,7 @@ pipeline {
 
 
                 // -------------------------------------------------
-                // Build Docker image
+                // BUILD DOCKER IMAGE
                 // -------------------------------------------------
 
                 echo 'Building Docker image...'
@@ -134,7 +184,7 @@ pipeline {
 
 
                 // -------------------------------------------------
-                // Scan Docker image and its layers
+                // DOCKER IMAGE / LAYER SCAN
                 // -------------------------------------------------
 
                 echo 'Scanning Docker image with Trivy...'
@@ -159,6 +209,7 @@ pipeline {
 
         stage('D - Push to Local Registry') {
             steps {
+
                 echo '=========================================='
                 echo 'Stage D - Push Docker Image'
                 echo '=========================================='
@@ -184,6 +235,7 @@ pipeline {
     post {
 
         success {
+
             echo '=========================================='
             echo 'PIPELINE SUCCESSFUL'
             echo '=========================================='
@@ -194,6 +246,7 @@ pipeline {
         }
 
         failure {
+
             echo '=========================================='
             echo 'PIPELINE FAILED'
             echo '=========================================='
@@ -204,6 +257,7 @@ pipeline {
         }
 
         always {
+
             echo '=========================================='
             echo 'PIPELINE COMPLETED'
             echo '=========================================='
