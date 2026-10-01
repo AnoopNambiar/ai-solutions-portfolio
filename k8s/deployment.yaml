@@ -2,23 +2,23 @@ apiVersion: apps/v1
 kind: Deployment
 
 metadata:
-  name: nasa-app
+  name: nasa-app1
 
 spec:
   replicas: 2
 
   selector:
     matchLabels:
-      app: nasa-app
+      app: nasa-app1
 
   template:
     metadata:
       labels:
-        app: nasa-app
+        app: nasa-app1
 
     spec:
       containers:
-        - name: nasa-app
+        - name: nasa-app1
           image: nasa-app:1.0
           imagePullPolicy: IfNotPresent
 
