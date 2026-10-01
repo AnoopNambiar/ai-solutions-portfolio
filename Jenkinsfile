@@ -10,13 +10,12 @@ pipeline {
 
     stages {
 
-        // =========================================================
+        // =====================================================
         // ENVIRONMENT CHECK
-        // =========================================================
+        // =====================================================
 
         stage('Environment Check') {
             steps {
-
                 echo '=========================================='
                 echo 'Environment Check'
                 echo '=========================================='
@@ -25,6 +24,18 @@ pipeline {
                     echo "Python:"
                     python --version
                     where python
+
+                    echo ""
+                    echo "Flake8:"
+                    python -m flake8 --version
+
+                    echo ""
+                    echo "Pytest:"
+                    python -m pytest --version
+
+                    echo ""
+                    echo "Black:"
+                    python -m black --version
 
                     echo ""
                     echo "Docker:"
@@ -38,13 +49,12 @@ pipeline {
         }
 
 
-        // =========================================================
+        // =====================================================
         // STAGE A - CODE LINTING
-        // =========================================================
+        // =====================================================
 
         stage('A - Code Linting') {
             steps {
-
                 echo '=========================================='
                 echo 'Stage A - Code Linting'
                 echo '=========================================='
@@ -55,22 +65,23 @@ pipeline {
                     python -m flake8 *.py tests
                 '''
 
-                echo 'Checking Black formatting...'
+                echo 'Running Black format check...'
 
                 sh '''
                     python -m black --check *.py tests
                 '''
+
+                echo 'Code linting completed successfully.'
             }
         }
 
 
-        // =========================================================
+        // =====================================================
         // STAGE B - UNIT TESTING
-        // =========================================================
+        // =====================================================
 
         stage('B - Unit Testing') {
             steps {
-
                 echo '=========================================='
                 echo 'Stage B - Unit Testing'
                 echo '=========================================='
@@ -78,24 +89,25 @@ pipeline {
                 sh '''
                     python -m pytest -v
                 '''
+
+                echo 'Unit tests completed successfully.'
             }
         }
 
 
-        // =========================================================
+        // =====================================================
         // STAGE C - VULNERABILITY SCAN
-        // =========================================================
+        // =====================================================
 
         stage('C - Vulnerability Scan') {
             steps {
-
                 echo '=========================================='
                 echo 'Stage C - Vulnerability Scan'
                 echo '=========================================='
 
-                // ---------------------------------------------
-                // Scan application dependencies / filesystem
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // Scan source files and dependencies
+                // -------------------------------------------------
 
                 echo 'Scanning project dependencies with Trivy...'
 
@@ -108,9 +120,9 @@ pipeline {
                 '''
 
 
-                // ---------------------------------------------
+                // -------------------------------------------------
                 // Build Docker image
-                // ---------------------------------------------
+                // -------------------------------------------------
 
                 echo 'Building Docker image...'
 
@@ -121,9 +133,9 @@ pipeline {
                 '''
 
 
-                // ---------------------------------------------
-                // Scan Docker image
-                // ---------------------------------------------
+                // -------------------------------------------------
+                // Scan Docker image and its layers
+                // -------------------------------------------------
 
                 echo 'Scanning Docker image with Trivy...'
 
@@ -135,45 +147,43 @@ pipeline {
                 '''
 
                 echo '=========================================='
-                echo 'Vulnerability scan PASSED'
+                echo 'VULNERABILITY SCAN PASSED'
                 echo '=========================================='
             }
         }
 
 
-        // =========================================================
+        // =====================================================
         // STAGE D - PUSH TO LOCAL REGISTRY
-        // =========================================================
+        // =====================================================
 
         stage('D - Push to Local Registry') {
             steps {
-
                 echo '=========================================='
                 echo 'Stage D - Push Docker Image'
                 echo '=========================================='
 
-                echo "Pushing image: ${IMAGE}"
+                echo "Image: ${IMAGE}"
 
                 sh '''
                     docker push "$IMAGE"
                 '''
 
                 echo '=========================================='
-                echo 'Docker image pushed successfully'
+                echo 'DOCKER IMAGE PUSHED SUCCESSFULLY'
                 echo '=========================================='
             }
         }
     }
 
 
-    // =============================================================
+    // =========================================================
     // POST BUILD
-    // =============================================================
+    // =========================================================
 
     post {
 
         success {
-
             echo '=========================================='
             echo 'PIPELINE SUCCESSFUL'
             echo '=========================================='
@@ -184,21 +194,18 @@ pipeline {
         }
 
         failure {
-
             echo '=========================================='
             echo 'PIPELINE FAILED'
             echo '=========================================='
 
             echo 'One or more stages failed.'
 
-            echo 'If the vulnerability scan failed,'
-            echo 'the Docker image was NOT pushed to the registry.'
+            echo 'If Stage C failed, the Docker image was NOT pushed.'
         }
 
         always {
-
             echo '=========================================='
-            echo 'Pipeline completed'
+            echo 'PIPELINE COMPLETED'
             echo '=========================================='
         }
     }
