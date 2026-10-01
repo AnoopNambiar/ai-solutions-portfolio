@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <title>NASA Astronomy Picture of the Day</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #0b0f19;
+            color: white;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .date {
+            text-align: center;
+            color: #aaa;
+        }
+
+        .card {
+            background-color: #151b2b;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        img {
+            width: 100%;
+            max-height: 650px;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .title {
+            font-size: 28px;
+            margin-top: 25px;
+        }
+
+        .explanation {
+            line-height: 1.7;
+            color: #ddd;
+        }
+
+        .credit {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        a {
+            color: #5db7ff;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🚀 NASA Astronomy Picture of the Day</h1>
+
+    <div class="card">
+
+        <h2 class="title">
+            {{ apod.title }}
+        </h2>
+
+        <p class="date">
+            {{ apod.date }}
+        </p>
+
+        {% if apod.media_type == "image" %}
+
+            <img src="{{ apod.hdurl or apod.url }}"
+                 alt="{{ apod.alt }}">
+
+        {% else %}
+
+            <p>
+                This APOD is not an image.
+            </p>
+
+            <a href="{{ apod.url }}" target="_blank">
+                View NASA content
+            </a>
+
+        {% endif %}
+
+        <p class="explanation">
+            {{ apod.explanation }}
+        </p>
+
+        {% if apod.credit %}
+            <p class="credit">
+                Credit: {{ apod.credit }}
+            </p>
+        {% endif %}
+
+        <p>
+            <a href="{{ apod.permalink }}" target="_blank">
+                View on NASA website →
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>x
