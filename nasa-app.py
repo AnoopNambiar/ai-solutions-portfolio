@@ -3,52 +3,40 @@ import requests
 import os
 from dotenv import load_dotenv
 
-# Load variables from .env
 load_dotenv()
 
 app = Flask(__name__)
 
 NASA_API_URL = "https://science.nasa.gov/wp-json/wp/v2/apod-basic"
-
 NASA_API_KEY = os.getenv("NASA_API_KEY")
 
 
 @app.route("/")
 def home():
 
-    try:
+    params = {
+        "api_key": NASA_API_KEY
+    }
 
-        # Send API key to NASA
-        params = {
-            "api_key": NASA_API_KEY
-        }
+    response = requests.get(
+        NASA_API_URL,
+        params=params,
+        timeout=10
+    )
 
-        response = requests.get(
-            NASA_API_URL,
-            params=params,
-            timeout=10
-        )
+    response.raise_for_status()
 
-        response.raise_for_status()
+    apod = response.json()
 
-        apod = response.json()
+    print("NASA RESPONSE:")
+    print(apod)
 
-        return render_template(
-            "index.html",
-            apod=apod
-        )
-
-    except requests.exceptions.RequestException as e:
-
-        return f"""
-        <h1>Error calling NASA API</h1>
-        <p>{e}</p>
-        """, 500
+    return render_template("index.html", apod=apod)
 
 
 if __name__ == "__main__":
     app.run(
-          host="0.0.0.0",
-          port=5000,
-          debug=False
-      )
+        host="0.0.0.0",
+        port=5000,
+        debug=True
+    )
