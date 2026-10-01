@@ -25,10 +25,7 @@ def home():
     )
 
     response.raise_for_status()
-
     apod = response.json()
-
-
     return render_template("index.html", apod=apod[0])
 
 if __name__ == "__main__":
