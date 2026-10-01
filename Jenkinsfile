@@ -15,13 +15,13 @@ pipeline {
                 echo 'Running Flake8...'
 
                 sh '''
-                    python3 -m flake8 .
+                    python -m flake8 .
                 '''
 
                 echo 'Checking Black formatting...'
 
                 sh '''
-                    python3 -m black --check .
+                    python -m black --check .
                 '''
             }
         }
@@ -31,14 +31,14 @@ pipeline {
                 echo 'Installing dependencies...'
 
                 sh '''
-                    python3 -m pip install -r requirements.txt
-                    python3 -m pip install -r requirements-dev.txt
+                    python -m pip install -r requirements.txt
+                    python -m pip install -r requirements-dev.txt
                 '''
 
                 echo 'Running pytest...'
 
                 sh '''
-                    python3 -m pytest -v
+                    python -m pytest -v
                 '''
             }
         }
