@@ -28,3 +28,4 @@ def test_home_page():
 
         assert response.status_code == 200
         assert b"Test NASA Image" in response.data
+        
