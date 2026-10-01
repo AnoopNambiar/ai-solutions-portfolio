@@ -8,7 +8,7 @@ spec:
   type: NodePort
 
   selector:
-    app: nasa-app
+    app: nasa-app1
 
   ports:
     - port: 5000
