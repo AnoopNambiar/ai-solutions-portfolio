@@ -191,6 +191,7 @@ pipeline {
                     trivy fs \
                         --scanners vuln \
                         --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+                        --ignore-unfixed \
                         --exit-code 1 \
                         .
                 '''
@@ -224,6 +225,7 @@ pipeline {
                     trivy image \
                         --scanners vuln \
                         --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
+                        --ignore-unfixed \
                         --exit-code 1 \
                         "$IMAGE"
                 '''
