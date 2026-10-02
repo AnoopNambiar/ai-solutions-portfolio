@@ -14,7 +14,7 @@ RUN apt-get update \
     && pip install --no-cache-dir -r requirements.txt
 
 COPY app.py .
-COPY index.html .
+COPY index.html ./templates/index.html
 
 EXPOSE 5000
 
