@@ -1,0 +1,564 @@
+Started by user Jenkin Admin
+Obtained Jenkinsfile from git https://github.com/AnoopNambiar/ai-solutions-portfolio
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in C:\ProgramData\Jenkins\.jenkins\workspace\nasa_app_github_integration
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Declarative: Checkout SCM)
+[Pipeline] checkout
+Selected Git installation does not exist. Using Default
+The recommended git tool is: NONE
+No credentials specified
+ > git.exe rev-parse --resolve-git-dir C:\ProgramData\Jenkins\.jenkins\workspace\nasa_app_github_integration\.git # timeout=10
+Fetching changes from the remote Git repository
+ > git.exe config remote.origin.url https://github.com/AnoopNambiar/ai-solutions-portfolio # timeout=10
+Fetching upstream changes from https://github.com/AnoopNambiar/ai-solutions-portfolio
+ > git.exe --version # timeout=10
+ > git --version # 'git version 2.56.0.windows.1'
+ > git.exe fetch --tags --force --progress -- https://github.com/AnoopNambiar/ai-solutions-portfolio +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git.exe rev-parse "refs/remotes/origin/main^{commit}" # timeout=10
+Checking out Revision 1bf0f5916161dddd925edf05042296f5d56f6918 (refs/remotes/origin/main)
+ > git.exe config core.sparsecheckout # timeout=10
+ > git.exe checkout -f 1bf0f5916161dddd925edf05042296f5d56f6918 # timeout=10
+Commit message: "nasa app push changed"
+ > git.exe rev-list --no-walk 0dae38026e9f2d49a55c66fe3af1fbb6496fd2ec # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Environment Check)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Environment Check
+[Pipeline] echo
+==========================================
+[Pipeline] sh
++ echo Python:
+Python:
++ python --version
+Python 3.13.3
++ where python
+C:\Python313\python.exe
++ echo ''
+
++ echo Docker:
+Docker:
++ docker --version
+Docker version 29.8.1, build 4a63305
++ echo ''
+
++ echo Trivy:
+Trivy:
++ trivy --version
+Version: 0.75.0
+Vulnerability DB:
+  Version: 2
+  UpdatedAt: 2026-10-01 19:00:16.340316472 +0000 UTC
+  NextUpdate: 2026-10-02 19:00:16.340316152 +0000 UTC
+  DownloadedAt: 2026-10-01 22:01:23.9679047 +0000 UTC
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Setup Python Environment)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Setup Python Environment
+[Pipeline] echo
+==========================================
+[Pipeline] sh
++ '[' '!' -d .venv ']'
++ echo 'Python virtual environment already exists.'
+Python virtual environment already exists.
++ echo 'Upgrading pip...'
+Upgrading pip...
++ .venv/Scripts/python.exe -m pip install --upgrade pip
+Requirement already satisfied: pip in .\.venv\Lib\site-packages (26.2.1)
++ echo 'Installing application dependencies...'
+Installing application dependencies...
++ .venv/Scripts/python.exe -m pip install -r requirements.txt
+Requirement already satisfied: Flask==3.1.3 in .\.venv\Lib\site-packages (from -r requirements.txt (line 1)) (3.1.3)
+Requirement already satisfied: python-dotenv==1.2.4 in .\.venv\Lib\site-packages (from -r requirements.txt (line 2)) (1.2.4)
+Requirement already satisfied: requests==2.33.0 in .\.venv\Lib\site-packages (from -r requirements.txt (line 3)) (2.33.0)
+Requirement already satisfied: blinker>=1.9.0 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (1.9.0)
+Requirement already satisfied: click>=8.1.3 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (8.5.0)
+Requirement already satisfied: itsdangerous>=2.2.0 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (2.2.0)
+Requirement already satisfied: jinja2>=3.1.2 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (3.1.6)
+Requirement already satisfied: markupsafe>=2.1.1 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (3.0.3)
+Requirement already satisfied: werkzeug>=3.1.0 in .\.venv\Lib\site-packages (from Flask==3.1.3->-r requirements.txt (line 1)) (3.1.9)
+Requirement already satisfied: charset_normalizer<4,>=2 in .\.venv\Lib\site-packages (from requests==2.33.0->-r requirements.txt (line 3)) (3.5.2)
+Requirement already satisfied: idna<4,>=2.5 in .\.venv\Lib\site-packages (from requests==2.33.0->-r requirements.txt (line 3)) (3.20)
+Requirement already satisfied: urllib3<3,>=1.26 in .\.venv\Lib\site-packages (from requests==2.33.0->-r requirements.txt (line 3)) (2.8.0)
+Requirement already satisfied: certifi>=2023.5.7 in .\.venv\Lib\site-packages (from requests==2.33.0->-r requirements.txt (line 3)) (2026.7.22)
++ echo 'Installing development dependencies...'
+Installing development dependencies...
++ .venv/Scripts/python.exe -m pip install -r requirements-dev.txt
+Requirement already satisfied: pytest in .\.venv\Lib\site-packages (from -r requirements-dev.txt (line 1)) (9.1.1)
+Requirement already satisfied: flake8 in .\.venv\Lib\site-packages (from -r requirements-dev.txt (line 2)) (7.4.1)
+Requirement already satisfied: black in .\.venv\Lib\site-packages (from -r requirements-dev.txt (line 3)) (26.5.1)
+Requirement already satisfied: colorama>=0.4 in .\.venv\Lib\site-packages (from pytest->-r requirements-dev.txt (line 1)) (0.4.6)
+Requirement already satisfied: iniconfig>=1.0.1 in .\.venv\Lib\site-packages (from pytest->-r requirements-dev.txt (line 1)) (2.3.0)
+Requirement already satisfied: packaging>=22 in .\.venv\Lib\site-packages (from pytest->-r requirements-dev.txt (line 1)) (26.3)
+Requirement already satisfied: pluggy<2,>=1.5 in .\.venv\Lib\site-packages (from pytest->-r requirements-dev.txt (line 1)) (1.6.0)
+Requirement already satisfied: pygments>=2.7.2 in .\.venv\Lib\site-packages (from pytest->-r requirements-dev.txt (line 1)) (2.21.0)
+Requirement already satisfied: mccabe<0.8.0,>=0.7.0 in .\.venv\Lib\site-packages (from flake8->-r requirements-dev.txt (line 2)) (0.7.0)
+Requirement already satisfied: pycodestyle<2.16.0,>=2.15.0 in .\.venv\Lib\site-packages (from flake8->-r requirements-dev.txt (line 2)) (2.15.0)
+Requirement already satisfied: pyflakes<4.1.0,>=4.0.0 in .\.venv\Lib\site-packages (from flake8->-r requirements-dev.txt (line 2)) (4.0.1)
+Requirement already satisfied: click>=8.0.0 in .\.venv\Lib\site-packages (from black->-r requirements-dev.txt (line 3)) (8.5.0)
+Requirement already satisfied: mypy-extensions>=0.4.3 in .\.venv\Lib\site-packages (from black->-r requirements-dev.txt (line 3)) (1.1.0)
+Requirement already satisfied: pathspec>=1.0.0 in .\.venv\Lib\site-packages (from black->-r requirements-dev.txt (line 3)) (1.1.1)
+Requirement already satisfied: platformdirs>=2 in .\.venv\Lib\site-packages (from black->-r requirements-dev.txt (line 3)) (4.12.2)
+Requirement already satisfied: pytokens~=0.4.0 in .\.venv\Lib\site-packages (from black->-r requirements-dev.txt (line 3)) (0.4.1)
++ echo 'Installed packages:'
+Installed packages:
++ .venv/Scripts/python.exe -m pip list
+Package            Version
+------------------ ---------
+black              26.5.1
+blinker            1.9.0
+certifi            2026.7.22
+charset-normalizer 3.5.2
+click              8.5.0
+colorama           0.4.6
+flake8             7.4.1
+Flask              3.1.3
+idna               3.20
+iniconfig          2.3.0
+itsdangerous       2.2.0
+Jinja2             3.1.6
+MarkupSafe         3.0.3
+mccabe             0.7.0
+mypy_extensions    1.1.0
+packaging          26.3
+pathspec           1.1.1
+pip                26.2.1
+platformdirs       4.12.2
+pluggy             1.6.0
+pycodestyle        2.15.0
+pyflakes           4.0.1
+Pygments           2.21.0
+pytest             9.1.1
+python-dotenv      1.2.4
+pytokens           0.4.1
+requests           2.33.0
+urllib3            2.8.0
+Werkzeug           3.1.9
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (A - Code Linting)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Stage A - Code Linting
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Running Flake8...
+[Pipeline] sh
++ .venv/Scripts/python.exe -m flake8 app.py tests
+[Pipeline] echo
+Flake8 passed.
+[Pipeline] echo
+Running Black format check...
+[Pipeline] sh
++ .venv/Scripts/python.exe -m black --check app.py tests
+All done! \u2728 \U0001f370 \u2728
+2 files would be left unchanged.
+[Pipeline] echo
+Black passed.
+[Pipeline] echo
+Code linting completed successfully.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (B - Unit Testing)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Stage B - Unit Testing
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Running unit tests...
+[Pipeline] sh
++ .venv/Scripts/python.exe -m pytest -v
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.1.1, pluggy-1.6.0 -- C:\ProgramData\Jenkins\.jenkins\workspace\nasa_app_github_integration\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\ProgramData\Jenkins\.jenkins\workspace\nasa_app_github_integration
+plugins: platformdirs-4.12.2
+collecting ... collected 1 item
+
+tests/test_nasa_app.py::test_home_page PASSED                            [100%]
+
+============================== 1 passed in 0.61s ==============================
+[Pipeline] echo
+Unit testing completed successfully.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Docker Environment Check)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Docker Environment Check
+[Pipeline] echo
+==========================================
+[Pipeline] sh
++ echo '=== Docker Version ==='
+=== Docker Version ===
++ docker --version
+Docker version 29.8.1, build 4a63305
++ echo '=== Docker Context ==='
+=== Docker Context ===
++ docker context show
+default
++ echo '=== Docker Info ==='
+=== Docker Info ===
++ docker info
+Client:
+ Version:    29.8.1
+ Context:    default
+ Debug Mode: false
+
+Server:
+ Containers: 2
+  Running: 2
+  Paused: 0
+  Stopped: 0
+ Images: 2
+ Server Version: 29.8.1
+ Storage Driver: overlayfs
+  driver-type: io.containerd.snapshotter.v1
+ Logging Driver: json-file
+ Cgroup Driver: cgroupfs
+ Cgroup Version: 2
+ Plugins:
+  Volume: local
+  Network: bridge host ipvlan macvlan null overlay
+  Log: awslogs fluentd gcplogs gelf journald json-file local splunk syslog
+ CDI spec directories:
+  /etc/cdi
+  /var/run/cdi
+ Discovered Devices:
+  cdi: docker.com/gpu=webgpu
+ Swarm: inactive
+ Runtimes: io.containerd.runc.v2 runc
+ Default Runtime: runc
+ Init Binary: docker-init
+ containerd version: 1294c24a7da8e5a793ed378161673abe94118892
+ runc version: v1.5.1-0-g8f2685a4
+ init version: de40ad0
+ Security Options:
+  seccomp
+   Profile: builtin
+  cgroupns
+ Kernel Version: 7.0.14-linuxkit
+ Operating System: Docker Desktop
+ OSType: linux
+ Architecture: x86_64
+ CPUs: 16
+ Total Memory: 3.879GiB
+ Name: docker-desktop
+ ID: 88d429b7-b3f1-4d60-a2b9-b5a6c414128f
+ Docker Root Dir: /var/lib/docker
+ Debug Mode: false
+ HTTP Proxy: http.docker.internal:3128
+ HTTPS Proxy: http.docker.internal:3128
+ No Proxy: hubproxy.docker.internal
+ Labels:
+  com.docker.desktop.address=npipe://\\.\pipe\docker_cli
+ Experimental: false
+ Insecure Registries:
+  hubproxy.docker.internal:5555
+  ::1/128
+  127.0.0.0/8
+ Live Restore Enabled: false
+ Firewall Backend: iptables
+
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (C - Vulnerability Scan)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Stage C - Vulnerability Scan
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Scanning Python dependencies with Trivy...
+[Pipeline] sh
++ trivy fs --scanners vuln --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --ignore-unfixed --exit-code 1 requirements.txt
+2026-10-02T14:58:23+05:30	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-02T14:58:23+05:30	WARN	[pip] Unable to find python `site-packages` directory. License detection is skipped.	err="site-packages directory not found"
+2026-10-02T14:58:23+05:30	INFO	Number of language-specific files	num=1
+2026-10-02T14:58:23+05:30	INFO	[pip] Detecting vulnerabilities...
+
+Report Summary
+
+┌──────────────────┬──────┬─────────────────┐
+│      Target      │ Type │ Vulnerabilities │
+├──────────────────┼──────┼─────────────────┤
+│ requirements.txt │ pip  │        0        │
+└──────────────────┴──────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+[Pipeline] echo
+Python dependency vulnerability scan passed.
+[Pipeline] echo
+Building Docker image...
+[Pipeline] sh
++ docker build --pull --no-cache -t nasa-app:1.0 .
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  921.1kB
+Step 1/8 : FROM python:3.13-slim-trixie
+3.13-slim-trixie: Pulling from library/python
+Digest: sha256:bb2988715db2cf7ace7b53f38f3cffbef7c7046a656bee66245eb0ed386e2e81
+Status: Downloaded newer image for python:3.13-slim-trixie
+ ---> bb2988715db2
+Step 2/8 : WORKDIR /app
+ ---> Running in ec0282f29ebe
+ ---> Removed intermediate container ec0282f29ebe
+ ---> 1130f9195cf5
+Step 3/8 : COPY requirements.txt .
+ ---> f820fdd316e9
+Step 4/8 : RUN apt-get update     && apt-get upgrade -y     && rm -rf /var/lib/apt/lists/*     && pip install --no-cache-dir --upgrade         pip         setuptools         urllib3     && pip install --no-cache-dir -r requirements.txt
+ ---> Running in fdd0e4e041bd
+Hit:1 http://deb.debian.org/debian trixie InRelease
+Get:2 http://deb.debian.org/debian trixie-updates InRelease [47.3 kB]
+Get:3 http://deb.debian.org/debian-security trixie-security InRelease [43.4 kB]
+Get:4 http://deb.debian.org/debian trixie/main amd64 Packages [9678 kB]
+Get:5 http://deb.debian.org/debian trixie-updates/main amd64 Packages [4412 B]
+Get:6 http://deb.debian.org/debian-security trixie-security/main amd64 Packages [263 kB]
+Fetched 10.0 MB in 1s (7434 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+The following packages will be upgraded:
+  libpcre2-8-0
+1 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 299 kB of archives.
+After this operation, 0 B of additional disk space will be used.
+Get:1 http://deb.debian.org/debian-security trixie-security/main amd64 libpcre2-8-0 amd64 10.46-1~deb13u3 [299 kB]
+[91mdebconf: unable to initialize frontend: Dialog
+debconf: (TERM is not set, so the dialog frontend is not usable.)
+debconf: falling back to frontend: Readline
+[0m[91mdebconf: unable to initialize frontend: Readline
+debconf: (Can't locate Term/ReadLine.pm in @INC (you may need to install the Term::ReadLine module) (@INC entries checked: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.40.1 /usr/local/share/perl/5.40.1 /usr/lib/x86_64-linux-gnu/perl5/5.40 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl-base /usr/lib/x86_64-linux-gnu/perl/5.40 /usr/share/perl/5.40 /usr/local/lib/site_perl) at /usr/share/perl5/Debconf/FrontEnd/Readline.pm line 8, <STDIN> line 1.)
+debconf: falling back to frontend: Teletype
+[0m[91mdebconf: unable to initialize frontend: Teletype
+debconf: (This frontend requires a controlling tty.)
+debconf: falling back to frontend: Noninteractive
+[0mFetched 299 kB in 0s (2183 kB/s)
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5660 files and directories currently installed.)
+Preparing to unpack .../libpcre2-8-0_10.46-1~deb13u3_amd64.deb ...
+Unpacking libpcre2-8-0:amd64 (10.46-1~deb13u3) over (10.46-1~deb13u2) ...
+Setting up libpcre2-8-0:amd64 (10.46-1~deb13u3) ...
+Processing triggers for libc-bin (2.41-12+deb13u4) ...
+Requirement already satisfied: pip in /usr/local/lib/python3.13/site-packages (26.2.1)
+Collecting setuptools
+  Downloading setuptools-84.0.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting urllib3
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Downloading setuptools-84.0.0-py3-none-any.whl (818 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 818.2/818.2 kB 25.7 MB/s  0:00:00
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Installing collected packages: urllib3, setuptools
+
+Successfully installed setuptools-84.0.0 urllib3-2.8.0
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0mCollecting Flask==3.1.3 (from -r requirements.txt (line 1))
+  Downloading flask-3.1.3-py3-none-any.whl.metadata (3.2 kB)
+Collecting python-dotenv==1.2.4 (from -r requirements.txt (line 2))
+  Downloading python_dotenv-1.2.4-py3-none-any.whl.metadata (29 kB)
+Collecting requests==2.33.0 (from -r requirements.txt (line 3))
+  Downloading requests-2.33.0-py3-none-any.whl.metadata (5.1 kB)
+Collecting blinker>=1.9.0 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading blinker-1.9.0-py3-none-any.whl.metadata (1.6 kB)
+Collecting click>=8.1.3 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading click-8.5.0-py3-none-any.whl.metadata (2.6 kB)
+Collecting itsdangerous>=2.2.0 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+Collecting jinja2>=3.1.2 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+Collecting markupsafe>=2.1.1 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (2.7 kB)
+Collecting werkzeug>=3.1.0 (from Flask==3.1.3->-r requirements.txt (line 1))
+  Downloading werkzeug-3.1.9-py3-none-any.whl.metadata (4.1 kB)
+Collecting charset_normalizer<4,>=2 (from requests==2.33.0->-r requirements.txt (line 3))
+  Downloading charset_normalizer-3.5.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (46 kB)
+Collecting idna<4,>=2.5 (from requests==2.33.0->-r requirements.txt (line 3))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Requirement already satisfied: urllib3<3,>=1.26 in /usr/local/lib/python3.13/site-packages (from requests==2.33.0->-r requirements.txt (line 3)) (2.8.0)
+Collecting certifi>=2023.5.7 (from requests==2.33.0->-r requirements.txt (line 3))
+  Downloading certifi-2026.7.22-py3-none-any.whl.metadata (2.5 kB)
+Downloading flask-3.1.3-py3-none-any.whl (103 kB)
+Downloading python_dotenv-1.2.4-py3-none-any.whl (23 kB)
+Downloading requests-2.33.0-py3-none-any.whl (65 kB)
+Downloading charset_normalizer-3.5.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (254 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading blinker-1.9.0-py3-none-any.whl (8.5 kB)
+Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Downloading click-8.5.0-py3-none-any.whl (125 kB)
+Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+Downloading markupsafe-3.0.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (22 kB)
+Downloading werkzeug-3.1.9-py3-none-any.whl (228 kB)
+Installing collected packages: python-dotenv, markupsafe, itsdangerous, idna, click, charset_normalizer, certifi, blinker, werkzeug, requests, jinja2, Flask
+
+Successfully installed Flask-3.1.3 blinker-1.9.0 certifi-2026.7.22 charset_normalizer-3.5.2 click-8.5.0 idna-3.20 itsdangerous-2.2.0 jinja2-3.1.6 markupsafe-3.0.3 python-dotenv-1.2.4 requests-2.33.0 werkzeug-3.1.9
+[91mWARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+[0m ---> Removed intermediate container fdd0e4e041bd
+ ---> 474b729137dc
+Step 5/8 : COPY app.py .
+ ---> 2fbc8f979039
+Step 6/8 : COPY index.html ./templates/index.html
+ ---> d29b80fc07a7
+Step 7/8 : EXPOSE 5000
+ ---> Running in 563a73bbe886
+ ---> Removed intermediate container 563a73bbe886
+ ---> c46b2af53a31
+Step 8/8 : CMD ["python", "app.py"]
+ ---> Running in 9f7253eb7e53
+ ---> Removed intermediate container 9f7253eb7e53
+ ---> 7a7088bb7832
+Successfully built 7a7088bb7832
+Successfully tagged nasa-app:1.0
+[Pipeline] echo
+Docker image built successfully: nasa-app:1.0
+[Pipeline] echo
+Scanning Docker image OS packages with Trivy...
+[Pipeline] sh
++ trivy image --scanners vuln --pkg-types os --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL --ignore-unfixed --exit-code 1 nasa-app:1.0
+2026-10-02T14:58:50+05:30	INFO	[vuln] Vulnerability scanning is enabled
+2026-10-02T14:58:52+05:30	INFO	Detected OS	family="debian" version="13.7"
+2026-10-02T14:58:52+05:30	INFO	[debian] Detecting vulnerabilities...	os_version="13" pkg_num=87
+2026-10-02T14:58:52+05:30	WARN	Using severities from other vendors for some vulnerabilities. Read https://trivy.dev/docs/v0.75/guide/scanner/vulnerability#severity-selection for details.
+
+Report Summary
+
+┌────────────────────────────┬────────┬─────────────────┐
+│           Target           │  Type  │ Vulnerabilities │
+├────────────────────────────┼────────┼─────────────────┤
+│ nasa-app:1.0 (debian 13.7) │ debian │        0        │
+└────────────────────────────┴────────┴─────────────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+[Pipeline] echo
+Docker image vulnerability scan passed.
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+VULNERABILITY SCAN PASSED
+[Pipeline] echo
+==========================================
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (D - Push to Local Registry)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Stage D - Push Docker Image
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Source Image: nasa-app:1.0
+[Pipeline] echo
+Registry Image: localhost:5000/nasa-app:1.0
+[Pipeline] sh
++ echo 'Tagging image for local registry...'
+Tagging image for local registry...
++ docker tag nasa-app:1.0 localhost:5000/nasa-app:1.0
++ echo 'Pushing image to local registry...'
+Pushing image to local registry...
++ docker push localhost:5000/nasa-app:1.0
+The push refers to repository [localhost:5000/nasa-app]
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+b14f2539d39c: Waiting
+6b37362b3da7: Waiting
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+b14f2539d39c: Waiting
+6b37362b3da7: Waiting
+6b37362b3da7: Waiting
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+b14f2539d39c: Waiting
+6b37362b3da7: Waiting
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+b14f2539d39c: Waiting
+b14f2539d39c: Waiting
+6b37362b3da7: Waiting
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+b14f2539d39c: Waiting
+6b37362b3da7: Waiting
+49ae429f6151: Waiting
+7e7563f2ddb6: Waiting
+7e7563f2ddb6: Layer already exists
+2e7b72d342c8: Pushed
+4e1eef483eeb: Pushed
+5954265d28ff: Pushed
+6b37362b3da7: Layer already exists
+49ae429f6151: Layer already exists
+90955593d9fe: Pushed
+b14f2539d39c: Layer already exists
+00a01748730e: Pushed
+1.0: digest: sha256:7a7088bb7832d17395a4728856c7df642310072e0570d23770408ce05e1e3ddf size: 2274
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+DOCKER IMAGE PUSHED SUCCESSFULLY
+[Pipeline] echo
+==========================================
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Declarative: Post Actions)
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+PIPELINE COMPLETED
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+PIPELINE SUCCESSFUL
+[Pipeline] echo
+==========================================
+[Pipeline] echo
+Docker Image: nasa-app:1.0
+[Pipeline] echo
+Registry Image: localhost:5000/nasa-app:1.0
+[Pipeline] echo
+All stages completed successfully.
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+Finished: SUCCESS
