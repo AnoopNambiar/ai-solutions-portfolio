@@ -143,6 +143,20 @@ pipeline {
             }
         }
 
+        stage('Docker Environment Check') {
+            steps {
+                sh '''
+                    echo "=== Docker Context ==="
+                    docker context ls
+
+                    echo "=== Docker Version ==="
+                    docker version
+
+                    echo "=== Docker Info ==="
+                    docker info
+                '''
+            }
+        }
 
         // =====================================================
         // STAGE C - VULNERABILITY SCAN
