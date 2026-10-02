@@ -143,8 +143,18 @@ pipeline {
             }
         }
 
+
+        // =====================================================
+        // DOCKER ENVIRONMENT CHECK
+        // =====================================================
+
         stage('Docker Environment Check') {
             steps {
+
+                echo '=========================================='
+                echo 'Docker Environment Check'
+                echo '=========================================='
+
                 sh '''
                     echo "=== Docker Context ==="
                     docker context ls
@@ -158,6 +168,7 @@ pipeline {
             }
         }
 
+
         // =====================================================
         // STAGE C - VULNERABILITY SCAN
         // =====================================================
@@ -169,8 +180,9 @@ pipeline {
                 echo 'Stage C - Vulnerability Scan'
                 echo '=========================================='
 
+
                 // -------------------------------------------------
-                // FILESYSTEM / DEPENDENCY SCAN
+                // 1. FILESYSTEM / DEPENDENCY SCAN
                 // -------------------------------------------------
 
                 echo 'Scanning project dependencies with Trivy...'
@@ -183,32 +195,40 @@ pipeline {
                         .
                 '''
 
+                echo 'Filesystem vulnerability scan passed.'
+
 
                 // -------------------------------------------------
-                // BUILD DOCKER IMAGE
+                // 2. BUILD DOCKER IMAGE
                 // -------------------------------------------------
 
                 echo 'Building Docker image...'
 
                 sh '''
                     docker build \
+                        --no-cache \
                         -t "$IMAGE" \
                         .
                 '''
 
+                echo "Docker image built successfully: $IMAGE"
+
 
                 // -------------------------------------------------
-                // DOCKER IMAGE / LAYER SCAN
+                // 3. DOCKER IMAGE / LAYER SCAN
                 // -------------------------------------------------
 
                 echo 'Scanning Docker image with Trivy...'
 
                 sh '''
                     trivy image \
+                        --scanners vuln \
                         --severity UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL \
                         --exit-code 1 \
                         "$IMAGE"
                 '''
+
+                echo 'Docker image vulnerability scan passed.'
 
                 echo '=========================================='
                 echo 'VULNERABILITY SCAN PASSED'
